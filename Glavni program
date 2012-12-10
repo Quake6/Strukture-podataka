@@ -1,0 +1,231 @@
+#include <cstdlib>
+#include <cstring>
+#include <windows.h>
+#include <iostream>
+#include <ctime>
+//#include "polja.h"
+#include "pok.h"
+
+using namespace std;
+
+struct generiranje {
+    int ai, bi, ci, di;
+};
+
+int n = 0;
+generiranje*generirani_podaci;
+tred*queue = new tred;
+tosoba*pomocna_osoba = new tosoba;
+tred*pomocni_red = new tred;
+
+void ispis(tosoba*covjek);
+
+void jedan()
+{
+    srand(time(0));
+    rand();
+    cout << "Broj osoba : ";
+    cin >> n;
+    generirani_podaci = new generiranje[n];
+    for(int i = 0; i < n; i++) {
+        generirani_podaci[i].ai = rand() % 401 + 100;
+        generirani_podaci[i].bi = rand() % 401 + 100;
+        generirani_podaci[i].ci = rand() % 6 + 1;
+        generirani_podaci[i].di = rand() % 4 + 1;
+        if(generirani_podaci[i].ci == 6 && generirani_podaci[i].di == 2)i--;
+    }
+}
+
+int dva()
+{
+    tosoba pom_red[n];
+    tosoba*pom_osoba = new tosoba;
+    for(int i = 0; i < n; i++) {
+        tosoba*covjek = new tosoba;
+        cout << "Ime: ", cin >> covjek->ime;
+        cout << "Prezime: ", cin >> covjek->prezime;
+        cout << "Godina rodenja: ", cin >> covjek->godina;
+        cout << "Tekuci stanje: ", cin >> covjek->tekuci;
+        cout << "Devizni je u: ", cin >> covjek->devizni_valuta;
+        cout << "Devizni stanje: ", cin >> covjek->devizni;
+        covjek->ai = generirani_podaci[i].ai;
+        covjek->bi = generirani_podaci[i].bi;
+        covjek->ci = generirani_podaci[i].ci;
+        covjek->di = generirani_podaci[i].di;
+        system("cls");
+        enq(covjek, queue);
+    }
+        for(int i = 0; i < n; i++) {
+        pom_osoba = f(queue);
+        deq(queue);
+        memcpy(&pom_red[i], pom_osoba, sizeof(tosoba));
+    }
+    for(int i = 1; i < n; i++) {
+        int j = i - 1;
+        int pom = pom_red[i].ci;
+        tosoba pom2 = pom_red[i];
+        while(j >= 0 && pom_red[j].ci > pom) {
+            pom_red[j+1] = pom_red[j--];
+            pom_red[j+1] = pom2;
+        }
+    }
+    queue = new tred;
+    InitQ(queue);
+    for(int i = 0; i < n; i++) {
+        pomocna_osoba = new tosoba;
+        if(pom_red[i].devizni > 10000)
+            cout << "KLIJENT : " << pom_red[i].ime,
+                 cout << ", " << pom_red[i].prezime,
+                      cout << " ima preko 10000 " << pom_red[i].devizni_valuta << endl;
+        memcpy(pomocna_osoba, &pom_red[i], sizeof(tosoba));
+        enq(pomocna_osoba, queue);
+    }
+}
+
+void tri()
+{
+    tosoba fast[n];
+    tosoba old[n];
+    int br_fast = 0;
+    int br_old = 0;
+    tosoba*osoba = new tosoba;
+    for(int i = 0; i < n; i++) {
+        osoba = f(queue);
+        if(osoba->di == 4) {
+            memcpy(&fast[br_fast], osoba, sizeof(tosoba));
+            br_fast++;
+        }
+        else {
+            memcpy(&old[br_old], osoba, sizeof(tosoba));
+            br_old++;
+        }
+        deq(queue);
+    }
+    cout << "Stanje glavnog reda" << endl;
+    cout << endl << endl;
+    for(int i = 0; i < br_old; i++) {
+        ispis(&old[i]);
+        memcpy(pomocna_osoba, &old[i], sizeof(tosoba));
+        enq(pomocna_osoba, queue);
+    }
+    n = br_old;
+    cout << endl << endl << endl;
+    cout << "Stanje pomocnog reda" << endl;
+    cout << endl << endl;
+    for(int i = 0; i < br_fast; i++)
+        ispis(&fast[i]);
+}
+
+void cetiri()
+{
+    tosoba pomocnired[n];
+    int pomocni_brojac = 0;
+    for (int i = 0; i < n; i++) {
+        pomocna_osoba = f(queue);
+        if((pomocna_osoba->godina > 1982 && pomocna_osoba->di == 1 && pomocna_osoba->ci == 4))
+            cout << "Izbacujem osobu: " << pomocna_osoba->ime << pomocna_osoba->prezime << endl;
+        else if(pomocna_osoba->ci == 1 && pomocna_osoba->di == 2 && pomocna_osoba->tekuci > 5000)
+            cout << "Izbacujem osobu: " << pomocna_osoba->ime << pomocna_osoba->prezime << endl;
+        else {
+            memcpy(&pomocnired[pomocni_brojac], pomocna_osoba, sizeof(tosoba));
+            pomocni_brojac++;
+        }
+        deq(queue);
+    }
+    cout << endl << endl;
+    cout << "Stanje na glavnom stogu\n" << endl;
+    n = pomocni_brojac;
+    for(int i = 0; i < n; i++) {
+        memcpy(pomocna_osoba, &pomocnired[i], sizeof(tosoba));
+        enq(pomocna_osoba, queue);
+        ispis(pomocna_osoba);
+    }
+}
+
+void pet(int sedamdeset_posto, int br_do_sedamdeset)
+{
+    if(IsEmptyQ(queue) == 1)return;
+    tosoba*p = new tosoba;
+    if(br_do_sedamdeset <= sedamdeset_posto - 1) {
+        p = f(queue);
+        cout << "P= " << p->ime << endl;
+        br_do_sedamdeset++;
+        deq(queue);
+        pet(sedamdeset_posto, br_do_sedamdeset);
+    } 
+    else {
+        while(IsEmptyQ(queue) == 0) {
+            tosoba*d = new tosoba;
+            d = f(queue);
+            enq(d, pomocni_red);
+            deq(queue);
+        }
+    }
+    enq(p, queue);
+}
+
+void poslozi(tred*neki_red);
+
+int main()
+{
+    InitQ(queue);
+    InitQ(pomocni_red);
+    int izbor;
+    do {
+        cout << "1. Generiranje niza slucajnih brojeva" << endl;
+        cout << "2. Dolazak osoba" << endl;
+        cout << "3. Brze transakcije" << endl;
+        cout << "4. Brisanje klijenata" << endl;
+        cout << "5. Otvaranje novog saltera u banci" << endl;
+        cout << "6. Izlaz" << endl;
+        cin >> izbor;
+        system("cls");
+        if(izbor == 1)jedan();
+        else if(izbor == 2)dva();
+        else if(izbor == 3)tri();
+        else if(izbor == 4)cetiri();
+        else if(izbor == 5) {
+            int br_do_sedamdeset = 0;
+            int sedamdeset_posto = 0.7 * n + 1;
+            pet(sedamdeset_posto, br_do_sedamdeset);
+            cout << "Glavni queue" << endl;
+            cout << "------------------------" << endl;
+            poslozi(queue);
+            cout << "Pomocni red" << endl;
+            cout << "------------------------" << endl;
+            poslozi(pomocni_red);
+        }
+        else if(izbor == 6)break;
+    }
+    while(izbor != 6);
+    cout << "KRAJ PROGRAMA" << endl;
+    return 0;
+}
+
+void ispis(tosoba*covjek)
+{
+    cout << "Ime: " << covjek->ime << endl;
+    cout << "Prezime: " << covjek->prezime << endl;
+    cout << "Godina rodenja: " << covjek->godina << endl;
+    cout << "Tekuci stanje: " << covjek->tekuci << endl;
+    cout << "Devizni stanje: " << covjek->devizni << endl;
+    cout << "Devizni valuta: " << covjek->devizni_valuta << endl;
+    cout << "ai: " << covjek->ai << endl;
+    cout << "bi: " << covjek->bi << endl;
+    cout << "ci: " << covjek->ci << endl;
+    cout << "Vrsta transakcije: " << covjek->di << endl;
+    system("pause");
+    cout << endl << endl;
+}
+
+void poslozi(tred*neki_red)
+{
+    if(IsEmptyQ(neki_red) == 1)return;
+    tosoba*p = new tosoba;
+    p = f(neki_red);
+    deq(neki_red);
+    poslozi(neki_red);
+    enq(p, neki_red);
+    ispis(p);
+}
+
